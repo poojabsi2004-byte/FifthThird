@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="bsi_bank_groups_list_view" model="ir.ui.view">
+        <field name="name">bai.bank.groups.list</field>
+        <field name="model">bai.bank.groups</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="ultimate_receiver_identification"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bsi_bank_groups_form_view" model="ir.ui.view">
+        <field name="name">bai.bank.groups.form</field>
+        <field name="model">bai.bank.groups</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group string="Groups">
+                        <field name="ultimate_receiver_identification"/>
+                        <field name="file_id"/>
+                        <notebook>
+                            <page name="Account" string="Account">
+                                <field name="account_ids">
+                                    <list>
+                                        <field name="account_number"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bsi_bank_groups_action" model="ir.actions.act_window">
+        <field name="name">Bank Groups</field>
+        <field name="res_model">bai.bank.groups</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_bsi_bank_groups"
+        name="Bank Groups"
+        parent="bsi_bank_statement_root_menu"
+        action="bsi_bank_groups_action" sequence="2"/>
+    
+
+</odoo>

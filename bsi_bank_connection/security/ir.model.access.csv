@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+bsi_bank_connection.access_bank_statement_log,access_bank_statement_log,bsi_bank_connection.model_bank_statement_log,base.group_user,1,1,1,1
+bsi_bank_connection.access_bai_bank_files,access_bai_bank_files,bsi_bank_connection.model_bai_bank_files,base.group_user,1,1,1,1
+bsi_bank_connection.access_bai_bank_groups,access_bai_bank_groups,bsi_bank_connection.model_bai_bank_groups,base.group_user,1,1,1,1
+bsi_bank_connection.access_bai_bank_accounts,access_bai_bank_accounts,bsi_bank_connection.model_bai_bank_accounts,base.group_user,1,1,1,1
+bsi_bank_connection.access_bai_bank_account_transactions,access_bai_bank_account_transactions,bsi_bank_connection.model_bai_bank_account_transactions,base.group_user,1,1,1,1

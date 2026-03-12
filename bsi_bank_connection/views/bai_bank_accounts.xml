@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="bsi_bank_accounts_list_view" model="ir.ui.view">
+        <field name="name">bai.bank.accounts.list</field>
+        <field name="model">bai.bank.accounts</field>
+        <field name="arch" type="xml">
+            <list>
+                <!-- <header>
+                    <button string="Fetch Data" name="sftp_connection" type="object" class="oe_highlight" display="always"/>
+                </header> -->
+
+                <field name="account_number"/>
+                <field name="account_name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bsi_bank_accounts_form_view" model="ir.ui.view">
+        <field name="name">bai.bank.accounts.form</field>
+        <field name="model">bai.bank.accounts</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group string="Accounts">
+                        <field name="account_number"/>
+                        <field name="account_name"/>
+                        <field name="group_id"/>
+                        <notebook>
+                            <page name="Transaction" string="Transaction">
+                                <field name="transaction_ids">
+                                    <list>
+                                        <field name="transaction_date"></field>
+                                        <field name="type_code"></field>
+                                        <field name="transaction_type"></field>
+                                        <field name="description"></field>
+                                        <field name="amount"></field>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bsi_bank_accounts_action" model="ir.actions.act_window">
+        <field name="name">Bank Accounts</field>
+        <field name="res_model">bai.bank.accounts</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_bsi_bank_accounts"
+        name="Bank Accounts"
+        parent="bsi_bank_statement_root_menu"
+        action="bsi_bank_accounts_action" sequence="2"/>
+    
+
+</odoo>

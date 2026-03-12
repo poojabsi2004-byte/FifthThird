@@ -1,0 +1,96 @@
+<odoo>
+    <record id="bsi_bank_statement_log_list_view" model="ir.ui.view">
+        <field name="name">bank.statement.log.list</field>
+        <field name="model">bank.statement.log</field>
+        <field name="arch" type="xml">
+            <list>
+                <header>
+                    <button string="Fetch Data" name="sftp_connection" type="object" class="oe_highlight" display="always"/>
+                </header>
+
+                <field name="sequence"/>
+                <field name="create_date"/>
+                <field name="file_name"/>
+                <field name="state" widget="badge" decoration-danger="state == 'failed' " decoration-success="state == 'success' "/>
+               
+            </list>
+        </field>
+    </record>
+
+    <record id="bsi_bank_statement_log_form_view" model="ir.ui.view">
+        <field name="name">bank.statement.log.form</field>
+        <field name="model">bank.statement.log</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+					<field name="state" widget="statusbar" />
+					<!-- <button string="Success" name="sftp_connection" type="object" class="oe_highlight" />
+					<button string="Failed" name="sftp_connection" type="object" class="oe_highlight"/> -->
+				</header>
+                <sheet>
+                    <group string="Transaction">
+                        <group>
+                            <field name="sequence"/>
+                            <field name="create_date"/>
+                            <field name="file_name" readonly="1" />
+                            <field name="file_description"/>
+                        </group>
+                        <group>
+                            <field name="error_box"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bsi_bank_statement_filter" model="ir.ui.view">
+        <field name="name">bank.statement.log.filter</field>
+        <field name="model">bank.statement.log</field>
+        <field name="priority" eval="16"/>
+        <field name="arch" type="xml">
+            <search string="Search Bank Statements">
+
+                <field name="file_name" string="File"/>
+                <field name="sequence"/>
+                <!-- <field name="file_description"/> -->
+                <field name="state"/>
+                <separator/>
+                <filter string="Success" name="success"
+                        domain="[('state', '=', 'success')]"/>
+                <filter string="Failed" name="failed"
+                        domain="[('state', '=', 'failed')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="File"
+                            name="group_by_file"
+                            context="{'group_by': 'file_name'}"/>
+                    <filter string="Status"
+                            name="group_by_status"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Date"
+                            name="group_by_date"
+                            context="{'group_by': 'create_date'}"/>
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+    <record id="bsi_bank_statement_log_action" model="ir.actions.act_window">
+        <field name="name">Bank Statements</field>
+        <field name="res_model">bank.statement.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="bsi_bank_statement_root_menu"
+        name="BSI Bank Connection"
+        sequence="1"/>
+
+    <menuitem id="menu_bsi_statements"
+        name="Bank Statements"
+        parent="bsi_bank_statement_root_menu"
+        action="bsi_bank_statement_log_action" sequence="2"/>
+
+</odoo>

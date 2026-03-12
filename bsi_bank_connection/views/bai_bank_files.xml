@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="bsi_bank_files_list_view" model="ir.ui.view">
+        <field name="name">bai.bank.files.list</field>
+        <field name="model">bai.bank.files</field>
+        <field name="arch" type="xml">
+            <list>
+                <!-- <header>
+                    <button string="Fetch Data" name="sftp_connection" type="object" class="oe_highlight" display="always"/>
+                </header> -->
+
+                <field name="sender_identification"/>
+                <field name="receiver_identification"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bsi_bank_files_form_view" model="ir.ui.view">
+        <field name="name">bai.bank.files.form</field>
+        <field name="model">bai.bank.files</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group string="Files">
+                        <field name="sender_identification"/>
+                        <field name="receiver_identification"/>
+
+                        <notebook>
+                            <page name="Groups" string="Groups">
+                                <field name="group_ids">
+                                    <list>
+                                        <field name="ultimate_receiver_identification"></field>
+                                    </list>
+                                </field>
+                                
+                            </page>
+                        </notebook>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bsi_bank_files_action" model="ir.actions.act_window">
+        <field name="name">Bank Files</field>
+        <field name="res_model">bai.bank.files</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_bsi_bank_files"
+        name="Bank Files"
+        parent="bsi_bank_statement_root_menu"
+        action="bsi_bank_files_action" sequence="2"/>
+    
+
+</odoo>
