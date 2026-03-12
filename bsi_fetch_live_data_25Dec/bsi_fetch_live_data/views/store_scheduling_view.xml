@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="store_scheduling_inherit_view_form" model="ir.ui.view">
+        <field name="name">
+            store.scheduling.form.inherit.fetch.live.data
+        </field>
+        <field name="model">store.scheduling</field>
+        <field name="priority" eval="15"/>
+        <field name="inherit_id" ref="bsi_subway_base.bsi_store_scheduling_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_done']" position="after">
+                <button name="action_week_data" id="week_data_id"  class="btn-primary" string="Week Data" type="object"/>
+                <button name="action_week_sale_data" class="btn-primary" string="Week Sale Data" type="object"/>
+            </xpath>
+        </field>
+    </record>
+
+      <record model="ir.actions.server" id="action_server_store_scheduling">
+            <field name="name">Update Store Scheduling</field>
+            <field name="model_id" ref="model_store_scheduling"/>
+            <field name="binding_model_id" ref="bsi_subway_base.model_store_scheduling" />
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">
+if records:
+    action = records.action_store_scheduling()
+            </field>
+        </record>
+
+
+</odoo>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- update data from live APIs -->
+        <record id="cron_store_scheduling_data" model="ir.cron">
+            <field name="name">Update Store Scheduling Data</field>
+            <field name="model_id" ref="model_store_scheduling"/>
+            <field name="state">code</field>
+            <field name="code">model.update_subway_scheduling_data()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">weeks</field>
+            <field name="active">False</field>
+        </record>
+
+        <!-- Corredinate fetch action -->
+        <record id="ir_cron_geo_location_sync" model="ir.cron">
+            <field name="name">Sync Geo Location From Odoo 15</field>
+            <field name="model_id" ref="model_geo_location_sync"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_geo_location_data()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">weeks</field>
+            <field name="active">False</field>
+        </record>
+
+
+        <!-- Employee fetch action -->
+        <record id="ir_cron_hr_employee_sync" model="ir.cron">
+            <field name="name">Sync HR Employee from Odoo 15</field>
+            <field name="model_id" ref="model_geo_location_sync"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_hr_employee_data()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active">False</field>
+        </record>
+
+        <record id="ir_cron_hr_att_sync" model="ir.cron">
+            <field name="name">Sync HR Att from Odoo 15</field>
+            <field name="model_id" ref="model_geo_location_sync"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_attendance_data()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active">False</field>
+        </record>
+
+        <record id="ir_cron_geo_location_sync_remaining" model="ir.cron">
+            <field name="name">Sync Geo Location From Odoo 15 Remaining</field>
+            <field name="model_id" ref="model_geo_location_sync"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_geo_location_data_remaining()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active">False</field>
+        </record>
+    </data>
+</odoo>
+
