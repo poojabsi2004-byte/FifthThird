@@ -1,2 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-bsi_fetch_live_data.access_geo_location_sync,access_geo_location_sync,bsi_fetch_live_data.model_geo_location_sync,base.group_user,1,1,1,1
