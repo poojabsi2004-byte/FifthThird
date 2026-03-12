@@ -1,0 +1,47 @@
+<odoo>
+    <record id="bai_transaction_list_view" model="ir.ui.view">
+        <field name="name">bai.transaction.list</field>
+        <field name="model">bai.transaction</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="account_number"/>
+                <field name="transaction_code"/>
+                <field name="amount"/>
+                <field name="description"/>
+                <field name="account_id"/>
+               
+            </list>
+        </field>
+    </record>
+
+    <record id="bai_transaction_form_view" model="ir.ui.view">
+        <field name="name">bai.transaction.form</field>
+        <field name="model">bai.transaction</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group string="Transaction">
+                        <field name="account_number"/>
+                        <field name="transaction_code"/>
+                        <field name="amount"/>
+                        <field name="description"/>
+                        <field name="account_id"/>
+                      
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bai_transaction_action" model="ir.actions.act_window">
+        <field name="name">BAI Transactions</field>
+        <field name="res_model">bai.transaction</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_bai_transaction"
+              name="Transactions"
+              parent="menu_bai_root"
+              action="bai_transaction_action" sequence="9"/>
+
+</odoo>

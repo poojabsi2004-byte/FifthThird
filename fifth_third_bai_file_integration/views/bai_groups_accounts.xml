@@ -1,0 +1,51 @@
+<odoo>
+    <record id="bai_group_accounts_list_view" model="ir.ui.view">
+        <field name="name">bai.group.accounts.list</field>
+        <field name="model">bai.group.accounts</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="group_ids" widget="many2many_tags"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bai_group_accounts_form_view" model="ir.ui.view">
+        <field name="name">bai.group.accounts.form.view</field>
+        <field name="model">bai.group.accounts</field>
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group string="Accounts">
+                    <field name="group_ids" widget="many2many_tags"></field>
+                    <field name="name"></field>
+                    <!-- <field name="transaction_ids"></field> -->
+                </group>
+                <notebook>
+                    <page name="Transaction Records" string="Records">
+                        <field name="transaction_ids">
+                            <list>
+                                <field name="account_number"></field>
+                                <field name="transaction_code"></field>
+                                <field name="amount"></field>
+                                <field name="description"></field>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+        </field>
+    </record>
+
+    <record id="bai_group_accounts_form_view_action" model="ir.actions.act_window">
+        <field name="name">BAI Accounts</field>
+        <field name="res_model">bai.group.accounts</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_bai_group_accounts"
+              name="Accounts"
+              parent="menu_bai_root"
+              action="bai_group_accounts_form_view_action" sequence="2"/>
+</odoo>

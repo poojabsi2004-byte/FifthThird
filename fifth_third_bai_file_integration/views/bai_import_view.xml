@@ -1,0 +1,34 @@
+<odoo>
+    <record id="view_bai_import_form" model="ir.ui.view">
+        <field name="name">bai.import.form</field>
+        <field name="model">bai.import</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_import_file"
+                            type="object"
+                            string="Import BAI File"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" multiple='multiple'/>
+                        <field name="bai_file" filename="filename" multiple='multiple'/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bai_import_action" model="ir.actions.act_window">
+        <field name="name">BAI Import</field>
+        <field name="res_model">bai.import</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <menuitem id="menu_bai_root" name="FifthThird Bank - BAI"/>
+    <menuitem id="menu_bai_import"
+              name="Import BAI File"
+              parent="menu_bai_root"
+              action="bai_import_action" sequence="10"/>
+</odoo>

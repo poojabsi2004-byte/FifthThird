@@ -1,0 +1,49 @@
+<odoo>
+    <record id="bai_group_list_view" model="ir.ui.view">
+        <field name="name">bai.group.list</field>
+        <field name="model">bai.groups</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="account_ids"  widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="bai_group_form_view" model="ir.ui.view">
+        <field name="name">bai.group.form.view</field>
+        <field name="model">bai.groups</field>
+        <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group string="Groups">
+                    <field name="name"></field>
+                    <!-- <field name="account_ids"></field> -->
+                </group>
+                <notebook>
+                    <page name="Accounts" string="Accounts">
+                        <field name="account_ids">
+                            <list>
+                                <field name="name"></field>
+                                <field name="group_ids"></field>
+                                <field name="transaction_ids"></field>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+        </field>
+    </record>
+
+    <record id="bai_group_form_view_action" model="ir.actions.act_window">
+        <field name="name">BAI Groups</field>
+        <field name="res_model">bai.groups</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_bai_groups"
+              name="Groups"
+              parent="menu_bai_root"
+              action="bai_group_form_view_action" sequence="1"/>
+</odoo>

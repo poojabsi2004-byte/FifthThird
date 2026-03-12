@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_fetch_sftp_files" model="ir.cron">
+        <field name="name">Fetch SFTP Files</field>
+        <field name="model_id" ref="model_sftp_service"/>
+        <field name="state">code</field>
+        <field name="code">model.fetch_files_from_sftp()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bai_import,bai.import,model_bai_import,,1,1,1,1
+access_bai_transaction,bai.transaction,model_bai_transaction,,1,1,1,1
+fifth_third_bai_file_integration.access_bai_groups,access_bai_groups,fifth_third_bai_file_integration.model_bai_groups,base.group_user,1,1,1,1
+fifth_third_bai_file_integration.access_bai_group_accounts,access_bai_group_accounts,fifth_third_bai_file_integration.model_bai_group_accounts,base.group_user,1,1,1,1
+fifth_third_bai_file_integration.access_sftp_service,access_sftp_service,fifth_third_bai_file_integration.model_sftp_service,base.group_user,1,1,1,1
