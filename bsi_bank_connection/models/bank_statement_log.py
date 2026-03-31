@@ -90,111 +90,6 @@ class BankStatementLogs(models.Model):
             if transport:
                 transport.close()
                 
-                
-    # @api.model
-    # def process_bai_content(self, file_data):
-    #     print("=== == == =3452345243523= =======")
-    #     current_file = None
-    #     current_group = None
-    #     current_account = None
-        
-        
-    #     File = self.env['bai.bank.files'].sudo()
-    #     Group = self.env['bai.bank.groups'].sudo()
-    #     Account = self.env['bai.bank.accounts'].sudo()
-    #     Transaction = self.env['bai.bank.account.transactions'].sudo().search([])
-
-    #     for raw_line in file_data.splitlines():
-    #         line = raw_line.strip()
-            
-    #         bank_name = None
-    #         account_number = None
-    #         statement_start = None
-    #         statement_end = None
-
-    #         if not line:
-    #             continue
-
-    #         if line.endswith('/'):
-    #             line = line[:-1]
-
-    #         parts = line.split(',')
-    #         record_type = parts[0]
-            
-    #         if record_type == "01":
-    #             statement_start = parts[3]
-    #             statement_end = parts[4]
-                
-    #             current_file = File.create({
-    #                 'sender_identification': parts[1],
-    #                 'receiver_identification': parts[2],
-    #             })
-
-                
-    #             print("--- file statement_start", statement_start)
-    #             print("--- file statement_end", statement_end)
-
-    #         # GROUP HEADER (02)
-    #         if record_type == '02':
-    #             print("-- --- - --- record type in if '02'",parts[1])
-    #             bank_name = parts[1]
-
-    #             current_group = Group.search(
-    #                 [('ultimate_receiver_identification', '=', bank_name)],
-    #                 limit=1
-    #             )
-
-    #             if not current_group:
-    #                 current_group = Group.create({
-    #                     'ultimate_receiver_identification': bank_name,
-    #                     'file_id': current_file.id,
-    #                 })
-
-    #             current_account = None 
-
-    #         # ACCOUNT HEADER (03)
-    #         elif record_type == '03' and current_group:
-    #             print("-- --- - --- record type in if '03'",parts[1])
-    #             account_number = parts[1]
-    #             current_account = Account.search([('customer_account_number', '=', account_number)], limit=1)
-
-    #             if not current_account:
-    #                 current_account = Account.create({
-    #                     'customer_account_number': account_number,
-    #                     'group_id': current_group.id, 
-    #                 })
-
-
-    #         # TRANSACTION (16)
-    #         elif record_type == '16' and current_account:
-    #             type_code = []
-    #             print("-- --- - --- record type in [if '16']",parts[1])
-    #             for code in Transaction:
-    #                 type_code.append(code.type_code)
-                    
-    #             print("-- -- -tyep code---", type_code)
-    #             if parts[1] not in type_code:
-    #                 Transaction.create({
-    #                     'account_id': current_account.id,
-    #                     'type_code': parts[1],
-    #                     'amount': float(parts[2]),
-                        
-    #                 })
-            
-    #             else:
-    #                 continue
-                
-    #         # ACCOUNT TRAILER (49)
-    #         elif record_type == '49':
-    #             current_account = None
-
-    #         # GROUP TRAILER (98)
-    #         elif record_type == '98':
-    #             current_group = None
-                
-            
-
-    #     return True
     
     @api.model
     def process_bai_content(self, file_data):
@@ -203,7 +98,8 @@ class BankStatementLogs(models.Model):
         current_group = None
         current_account = None
         last_transaction = None
-        current_group_date = None   # <-- ADDED (store date from 02)
+        current_group_date = None
+        pending_account_name = None
 
         File = self.env['bai.bank.files'].sudo()
         Group = self.env['bai.bank.groups'].sudo()
@@ -227,10 +123,26 @@ class BankStatementLogs(models.Model):
 
             # ---------------- FILE HEADER ----------------
             if record_type == "01":
+                
+                if len(parts) > 3 and parts[3]:
+                    raw_date = parts[3]
+                    print("--- -raw_date--", raw_date)
+                    year = int('20' + raw_date[0:2])
+                    month = int(raw_date[2:4])
+                    day = int(raw_date[4:6])
+                    current_group_date_1 = f"{year}-{month:02}-{day:02}"
+                    print("-- -if- current_group_date--", current_group_date_1)
+                else:
+                    current_group_date = fields.Date.today()
+                    print("--else -- current_group_date--", current_group_date_1)
+                
+                
                 current_file = File.create({
                     'sender_identification': parts[1] if len(parts) > 1 else '',
                     'receiver_identification': parts[2] if len(parts) > 2 else '',
+                    'file_creation_date': current_group_date_1 if current_group_date_1 else fields.Date.today(),
                 })
+                
 
             # ---------------- GROUP HEADER ----------------
             elif record_type == '02':
@@ -238,13 +150,16 @@ class BankStatementLogs(models.Model):
 
                 # -------- GET DATE FROM BAI (YYMMDD) --------
                 if len(parts) > 4 and parts[4]:
-                    raw_date = parts[4]   # example 260210
+                    raw_date = parts[4]
+                    print("--- -raw_date--", raw_date)
                     year = int('20' + raw_date[0:2])
                     month = int(raw_date[2:4])
                     day = int(raw_date[4:6])
                     current_group_date = f"{year}-{month:02}-{day:02}"
+                    print("-- -if- current_group_date--", current_group_date)
                 else:
                     current_group_date = fields.Date.today()
+                    print("--else -- current_group_date--", current_group_date)
 
                 current_group = Group.search([
                     ('ultimate_receiver_identification', '=', bank_name)
@@ -254,6 +169,7 @@ class BankStatementLogs(models.Model):
                     current_group = Group.create({
                         'ultimate_receiver_identification': bank_name,
                         'file_id': current_file.id if current_file else False,
+                        'group_date': current_group_date if current_group_date else fields.Date.today(),
                     })
 
                 current_account = None
@@ -270,7 +186,12 @@ class BankStatementLogs(models.Model):
                     current_account = Account.create({
                         'account_number': account_number,
                         'group_id': current_group.id,
+                        'account_name': pending_account_name if pending_account_name else '',
                     })
+                else:
+                # update name if we captured from 88
+                    if pending_account_name:
+                        current_account.account_name = pending_account_name
 
             # ---------------- TRANSACTION 16 ----------------
             elif record_type == '16' and current_account:
@@ -288,6 +209,10 @@ class BankStatementLogs(models.Model):
                     trx_type = 'debit'
 
                 description = ''
+                
+                if pending_account_name:
+                    description = f"{pending_account_name} - {description}"
+
                 if len(parts) >= 7:
                     description = parts[6]
 
@@ -296,7 +221,7 @@ class BankStatementLogs(models.Model):
                     ('type_code', '=', type_code),
                     ('amount', '=', amount),
                     ('description', '=', description),
-                    ('transaction_date', '=', current_group_date),  # <-- added
+                    ('transaction_date', '=', current_group_date),
                 ], limit=1)
 
                 if existing:
@@ -309,7 +234,7 @@ class BankStatementLogs(models.Model):
                     'amount': amount,
                     'transaction_type': trx_type,
                     'description': description,
-                    'transaction_date': current_group_date,  # <-- added
+                    'transaction_date': current_group_date,
                 })
 
             # ---------------- DESCRIPTION CONTINUATION 88 ----------------
@@ -319,16 +244,29 @@ class BankStatementLogs(models.Model):
                 if extra_desc:
                     if last_transaction.description:
                         last_transaction.description += ' ' + extra_desc
+                        pending_account_name = f"{pending_account_name} {extra_desc}" if pending_account_name else extra_desc
+                    
+                        if hasattr(current_account, 'account_name') and pending_account_name:
+                            current_account.sudo().write({
+                                'account_name': pending_account_name
+                            })
                     else:
                         last_transaction.description = extra_desc
-
+                        pending_account_name = extra_desc
+                    
+                        if hasattr(current_account, 'account_name') and pending_account_name:
+                            current_account.sudo().write({
+                                'account_name': pending_account_name
+                            })
             # ---------------- ACCOUNT TRAILER ----------------
             elif record_type == '49':
                 current_account = None
                 last_transaction = None
+                pending_account_name = None
 
             # ---------------- GROUP TRAILER ----------------
             elif record_type == '98':
                 current_group = None
 
+            print('-- - - - extra_desc----  --', pending_account_name)
         return True
