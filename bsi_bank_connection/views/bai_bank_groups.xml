@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="ultimate_receiver_identification"/>
+                <field name="group_date"/>
             </list>
         </field>
     </record>
@@ -19,6 +20,7 @@
                 <sheet>
                     <group string="Groups">
                         <field name="ultimate_receiver_identification"/>
+                        <field name="group_date"/>
                         <field name="file_id"/>
                         <notebook>
                             <page name="Account" string="Account">
@@ -39,6 +41,29 @@
         <field name="name">Bank Groups</field>
         <field name="res_model">bai.bank.groups</field>
         <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="bai_bank_group_filter" model="ir.ui.view">
+        <field name="name">bai.bank.group.filter</field>
+        <field name="model">bai.bank.groups</field>
+        <field name="priority" eval="16"/>
+        <field name="arch" type="xml">
+            <search string="Search Bank Statements">
+
+                <field name="ultimate_receiver_identification" string="File"/>
+                <field name="group_date"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="File"
+                            name="group_by_file"
+                            context="{'group_by': 'ultimate_receiver_identification'}"/>
+                    <filter string="Status"
+                            name="group_by_status"
+                            context="{'group_by': 'group_date'}"/>
+                </group>
+
+            </search>
+        </field>
     </record>
 
     <menuitem id="menu_bsi_bank_groups"

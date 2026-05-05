@@ -1,7 +1,7 @@
 from odoo import models, fields, api
-import datetime
+import datetime, base64
 import paramiko, io, csv, logging
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 class BankStatementLogs(models.Model):
     _name = "bank.statement.log"
@@ -14,6 +14,8 @@ class BankStatementLogs(models.Model):
     create_date = fields.Datetime(string="Create Date", default=datetime.datetime.now())
     error_box = fields.Char(string="Error Message")
    
+    file_data = fields.Binary("File")
+    
     @api.model      
     def create(self, vals):
         if vals.get('sequence', 'new') == 'new':
@@ -21,19 +23,30 @@ class BankStatementLogs(models.Model):
         result = super(BankStatementLogs, self).create(vals)
         return result
     
-    
+    @api.model
     def sftp_connection(self):
+        
+        username = self.env['ir.config_parameter'].sudo().get_param('bsi_bank_connection.sftp_username')
+        password = self.env['ir.config_parameter'].sudo().get_param('bsi_bank_connection.sftp_password')
+        
+        print("------ sftp connection details ----- username---", username)
+        print("------ sftp connection details ----- password---", password)
+        
+        if not username and password:
+            raise ValidationError("SFTP account credentials could not be fetched.")
+        
         host = '178.156.207.111'
+        # host = '192.168.29.20'
         port = 22
-        username = 'fifththird_drop'
-        password = '#8fn#*f4@fe&6b@648%'
+        username = username
+        password = password
         remote_path = 'incoming'
         destination_path = 'processed'
 
         transport = None
         sftp = None
 
-        try:
+        try:    
             print("== =start= ==connect with sftp server -======")
             transport = paramiko.Transport((host, port))
             transport.connect(username=username, password=password)
@@ -41,10 +54,15 @@ class BankStatementLogs(models.Model):
             print("== =end= ==connect with sftp server -======")
 
             files = sftp.listdir(remote_path)
+            existing_files = self.env['bank.statement.log'].sudo().search([]).mapped('file_name')
 
             print("====== = =file path ====", files)
             for filename in files:
                 if not filename.endswith('.txt'):
+                    continue
+                
+                if filename in existing_files:
+                    print(f"====== Skipping already processed file: {filename} ======")
                     continue
 
                 file_path = f"{remote_path}/{filename}"
@@ -62,14 +80,23 @@ class BankStatementLogs(models.Model):
                 sequence = self.env['ir.sequence'].with_context(ir_sequence_date=fields.Date.today()).next_by_code('statement.sequence.file')
                 print("---- sequence--", sequence)
                 
+                with sftp.open(file_path, 'rb') as file:
+                    raw_data = file.read()
+                    file_text = raw_data.decode('utf-8', errors='ignore')
+                
                 self.env['bank.statement.log'].sudo().create({
                     'sequence': sequence,
                     'file_name': filename,
                     'file_description': file_data,
+                    'file_data': base64.b64encode(raw_data),
                     'state': 'success',
                 })
                 
                 self.process_bai_content(file_data)
+                print("=== =process_bai_content(file_data)=== ",file_data)
+                
+                # sftp.rename(file_path, dest_path)
+                # print("--- file moved successfully ---")
                 
                 # sftp.putfo(sftp.open(file_path, 'rb'), dest_path)
                 # sftp.remove(file_path)
@@ -79,8 +106,6 @@ class BankStatementLogs(models.Model):
                 #     sftp.putfo(fl, dest_path)
                 #     print("--- -destination file---", dest_path)
                 
-                
-
         except Exception as e:
             raise UserError(("SFTP Error: %s") % str(e))
 
@@ -90,15 +115,25 @@ class BankStatementLogs(models.Model):
             if transport:
                 transport.close()
                 
+            
     
     @api.model
     def process_bai_content(self, file_data):
-
+        
+        # sftp_connection = self.sftp_connection()
+         
+        # if sftp_connection:
+        #     print("---SFTP Server Connection---")
+        #     continue
+        # else:
+        #     raise ValidationError("SFTP connetion Failed")
+        
         current_file = None
         current_group = None
         current_account = None
         last_transaction = None
         current_group_date = None
+        current_file_datetime = None
         pending_account_name = None
 
         File = self.env['bai.bank.files'].sudo()
@@ -121,34 +156,29 @@ class BankStatementLogs(models.Model):
             parts = line.split(',')
             record_type = parts[0]
 
-            # ---------------- FILE HEADER ----------------
             if record_type == "01":
                 
                 if len(parts) > 3 and parts[3]:
-                    raw_date = parts[3]
-                    print("--- -raw_date--", raw_date)
-                    year = int('20' + raw_date[0:2])
-                    month = int(raw_date[2:4])
-                    day = int(raw_date[4:6])
-                    current_group_date_1 = f"{year}-{month:02}-{day:02}"
-                    print("-- -if- current_group_date--", current_group_date_1)
+                    raw_datetime = f"{parts[3]}{parts[4]}"
+                    print("--- -raw_date--", raw_datetime)
+                    dt = datetime.datetime.strptime(raw_datetime, "%y%m%d%H%M%S")
+                    current_file_datetime = dt
+
+                    print("-if- current_file_datetime --", current_file_datetime)
                 else:
-                    current_group_date = fields.Date.today()
-                    print("--else -- current_group_date--", current_group_date_1)
+                    current_file_datetime = fields.Date.today()
+                    print("--else -- current_group_date--", current_file_datetime)
                 
                 
+                print("-print if- current_file_datetime --", current_file_datetime)
                 current_file = File.create({
                     'sender_identification': parts[1] if len(parts) > 1 else '',
                     'receiver_identification': parts[2] if len(parts) > 2 else '',
-                    'file_creation_date': current_group_date_1 if current_group_date_1 else fields.Date.today(),
+                    'file_creation_date': current_file_datetime,
                 })
-                
-
-            # ---------------- GROUP HEADER ----------------
             elif record_type == '02':
                 bank_name = parts[1] if len(parts) > 1 else ''
 
-                # -------- GET DATE FROM BAI (YYMMDD) --------
                 if len(parts) > 4 and parts[4]:
                     raw_date = parts[4]
                     print("--- -raw_date--", raw_date)
@@ -165,16 +195,13 @@ class BankStatementLogs(models.Model):
                     ('ultimate_receiver_identification', '=', bank_name)
                 ], limit=1)
 
-                if not current_group:
-                    current_group = Group.create({
-                        'ultimate_receiver_identification': bank_name,
-                        'file_id': current_file.id if current_file else False,
-                        'group_date': current_group_date if current_group_date else fields.Date.today(),
-                    })
+                current_group = Group.create({
+                    'ultimate_receiver_identification': bank_name,
+                    'file_id': current_file.id if current_file else False,
+                    'group_date': current_group_date if current_group_date else fields.Date.today(),
+                })
 
                 current_account = None
-
-            # ---------------- ACCOUNT HEADER ----------------
             elif record_type == '03' and current_group:
                 account_number = parts[1] if len(parts) > 1 else ''
 
@@ -182,25 +209,21 @@ class BankStatementLogs(models.Model):
                     ('account_number', '=', account_number)
                 ], limit=1)
 
-                if not current_account:
-                    current_account = Account.create({
-                        'account_number': account_number,
-                        'group_id': current_group.id,
-                        'account_name': pending_account_name if pending_account_name else '',
-                    })
-                else:
-                # update name if we captured from 88
-                    if pending_account_name:
-                        current_account.account_name = pending_account_name
-
+                current_account = Account.create({
+                    'account_number': account_number,
+                    'group_id': current_group.id,
+                    'account_name': pending_account_name if pending_account_name else '',
+                })
             # ---------------- TRANSACTION 16 ----------------
             elif record_type == '16' and current_account:
 
                 type_code = parts[1] if len(parts) > 1 else ''
                 raw_amount = parts[2] if len(parts) > 2 else '0'
-
+                fund_type = parts[3] if len(parts) > 3 else 'Z'
+                print('-- -- fund_type-- ---', fund_type)
+                
                 amount = float(raw_amount) / 100 if raw_amount else 0.0
-
+                
                 if type_code in CREDIT_CODES:
                     trx_type = 'credit'
                 elif type_code in DEBIT_CODES:
@@ -208,6 +231,29 @@ class BankStatementLogs(models.Model):
                 else:
                     trx_type = 'debit'
 
+                trx_date = current_group_date
+                
+                if fund_type == 'V':
+                    if len(parts) > 4 and parts[4]:
+                        raw_date = parts[4]
+
+                        year = int('20' + raw_date[0:2])
+                        month = int(raw_date[2:4])
+                        day = int(raw_date[4:6])
+
+                        hour = 0
+                        minute = 0
+
+                        if len(parts) > 5 and parts[5]:
+                            raw_time = parts[5]
+                            hour = int(raw_time[0:2])
+                            minute = int(raw_time[2:4])
+
+                        trx_datetime = datetime.datetime(year, month, day, hour, minute)
+
+                        trx_date = trx_datetime.date()
+                        print("--- -- trx_date --- --", trx_date)
+                
                 description = ''
                 
                 if pending_account_name:
@@ -221,7 +267,7 @@ class BankStatementLogs(models.Model):
                     ('type_code', '=', type_code),
                     ('amount', '=', amount),
                     ('description', '=', description),
-                    ('transaction_date', '=', current_group_date),
+                    ('transaction_date', '=', trx_date if trx_date else current_group_date),
                 ], limit=1)
 
                 if existing:
@@ -233,10 +279,10 @@ class BankStatementLogs(models.Model):
                     'type_code': type_code,
                     'amount': amount,
                     'transaction_type': trx_type,
+                    'fund_type': fund_type,
                     'description': description,
                     'transaction_date': current_group_date,
                 })
-
             # ---------------- DESCRIPTION CONTINUATION 88 ----------------
             elif record_type == '88' and last_transaction:
                 extra_desc = ','.join(parts[1:]).strip()
@@ -270,3 +316,49 @@ class BankStatementLogs(models.Model):
 
             print('-- - - - extra_desc----  --', pending_account_name)
         return True
+    
+    def action_download_file(self):
+        self.ensure_one()
+        for rec in self:
+            rec.file_data = base64.b64encode(rec.file_description.encode('utf-8'))
+            print("- -- action_download_file- -")
+        return {
+        'type': 'ir.actions.act_url',
+        'url': f'/web/content/{self._name}/{self.id}/file_data/{self.file_name}?download=true',
+        'target': 'self',
+    }
+
+
+    def test_sftp_connection(self):
+        
+        username = self.env['ir.config_parameter'].sudo().get_param('bsi_bank_connection.sftp_username')
+        password = self.env['ir.config_parameter'].sudo().get_param('bsi_bank_connection.sftp_password')
+        
+        print("------ sftp connection details ----- username---", username)
+        print("------ sftp connection details ----- password---", password)
+        
+        if not username and password:
+            raise ValidationError("SFTP account credentials could not be fetched.")
+        
+        host = '178.156.207.111'
+        port = 22
+        username = username
+        password = password
+
+        transport = None
+        sftp = None
+
+        try:    
+            print("== =start= ==connect with sftp server -======")
+            transport = paramiko.Transport((host, port))
+            transport.connect(username=username, password=password)
+            sftp = paramiko.SFTPClient.from_transport(transport)
+            print("== =end= ==connect with sftp server -======")
+        except Exception as e:
+            raise UserError(("SFTP Error: %s") % str(e))
+
+        finally:
+            if sftp:
+                sftp.close()
+            if transport:
+                transport.close()

@@ -8,5 +8,5 @@ class BSIBankFile(models.Model):
     sender_identification = fields.Char(string="Sender Identification")
     receiver_identification = fields.Char(string="Receiver Identification")
     group_ids = fields.One2many('bai.bank.groups','file_id',string="Groups")
-    # file_creation_date = fields.Datetime(string="File Creation Date YYDDMM format")
+    file_creation_date = fields.Datetime(string="File Creation Date")
     # file_dentification_number = fields.Integer(string="File Identification Number Identification")

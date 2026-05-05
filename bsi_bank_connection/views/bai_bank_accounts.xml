@@ -51,6 +51,29 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <record id="bsi_bank_accounts_filter" model="ir.ui.view">
+        <field name="name">bai.bank.accounts.filter</field>
+        <field name="model">bai.bank.accounts</field>
+        <field name="priority" eval="16"/>
+        <field name="arch" type="xml">
+            <search string="Search Bank Statements">
+
+                <field name="account_number" string="File"/>
+                <field name="account_name"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Account"
+                            name="group_by_file"
+                            context="{'group_by': 'account_number'}"/>
+                    <filter string="Account Name"
+                            name="group_by_status"
+                            context="{'group_by': 'account_name'}"/>
+                </group>
+
+            </search>
+        </field>
+    </record>
+
     <menuitem id="menu_bsi_bank_accounts"
         name="Bank Accounts"
         parent="bsi_bank_statement_root_menu"

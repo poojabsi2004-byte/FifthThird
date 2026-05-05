@@ -3,3 +3,4 @@ from . import bai_bank_groups
 from . import bai_bank_accounts
 from . import bai_bank_account_transaction
 from . import bank_statement_log
+from . import res_config_setting

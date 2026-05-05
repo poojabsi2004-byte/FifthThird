@@ -7,6 +7,7 @@ class BSIBankAccountTransaction(models.Model):
     type_code = fields.Char(string="Type Code")
     description = fields.Char(string="Description")
     transaction_type = fields.Selection([('credit', 'Credit'), ('debit', 'Debit')], string="Transaction Type")
+    fund_type = fields.Char(string='Fund Type')
     amount = fields.Float(string="Amount")
     account_id = fields.Many2one("bai.bank.accounts",string="Account")
     transaction_date = fields.Date("Transaction Date")

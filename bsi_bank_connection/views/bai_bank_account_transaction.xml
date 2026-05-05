@@ -12,6 +12,7 @@
 
                 <field name="type_code"/>
                 <field name="transaction_type"/>
+                <field name="fund_type"/>
                 <field name="transaction_date"/>
                 <field name="amount"/>
             </list>
@@ -27,12 +28,37 @@
                     <group string="Account Transactions">
                         <field name="type_code"/>
                         <field name="transaction_type"/>
+                        <field name="fund_type"/>
                         <field name="transaction_date"/>
                         <field name="amount"/>
                         <field name="account_id"/>
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="bsi_bank_account_transactions_filter" model="ir.ui.view">
+        <field name="name">bsi.bank.account.transactions.filter</field>
+        <field name="model">bai.bank.account.transactions</field>
+        <field name="priority" eval="16"/>
+        <field name="arch" type="xml">
+            <search string="Search Bank Statements">
+
+                <field name="transaction_type" string="File"/>
+                <field name="description"/>
+                <field name="fund_type"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Transaction Type"
+                            name="group_by_transaction_type"
+                            context="{'group_by': 'transaction_type'}"/>
+                    <filter string="Fund Type"
+                            name="group_by_fund_type"
+                            context="{'group_by': 'fund_type'}"/>
+                </group>
+
+            </search>
         </field>
     </record>
 

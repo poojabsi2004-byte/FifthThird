@@ -7,4 +7,5 @@ class BSIBanGroups(models.Model):
     
     ultimate_receiver_identification = fields.Char(string="Ultimate Receiver identification")
     file_id = fields.Many2one('bai.bank.files',string="File")
+    group_date = fields.Date(string="Group Date")
     account_ids = fields.One2many("bai.bank.accounts",'group_id',string="Accounts")

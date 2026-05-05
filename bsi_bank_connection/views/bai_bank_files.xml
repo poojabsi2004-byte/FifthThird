@@ -12,6 +12,7 @@
 
                 <field name="sender_identification"/>
                 <field name="receiver_identification"/>
+                <field name="file_creation_date"/>
             </list>
         </field>
     </record>
@@ -25,12 +26,14 @@
                     <group string="Files">
                         <field name="sender_identification"/>
                         <field name="receiver_identification"/>
+                        <field name="file_creation_date"/>
 
                         <notebook>
                             <page name="Groups" string="Groups">
                                 <field name="group_ids">
                                     <list>
                                         <field name="ultimate_receiver_identification"></field>
+                                        <field name="group_date"></field>
                                     </list>
                                 </field>
                                 
