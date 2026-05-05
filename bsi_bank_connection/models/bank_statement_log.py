@@ -23,7 +23,7 @@ class BankStatementLogs(models.Model):
         result = super(BankStatementLogs, self).create(vals)
         return result
     
-    @api.model
+    # @api.model
     def sftp_connection(self):
         
         username = self.env['ir.config_parameter'].sudo().get_param('bsi_bank_connection.sftp_username')

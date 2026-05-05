@@ -1,0 +1,28 @@
+<!-- <odoo>
+
+    <record id="ir_cron_fetch_sftp_files" model="ir.cron">
+        <field name="name">Fetch SFTP Files</field>
+        <field name="model_id" ref="model_bank_statement_log"/>
+        <field name="state">code</field>
+        <field name="code">bsi_bank_connection.sftp_connection()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+    </record>
+
+</odoo> -->
+
+<odoo>
+
+    <record id="ir_cron_fetch_sftp_files" model="ir.cron">
+        <field name="name">Fetch SFTP Files</field>
+        <field name="model_id" ref="model_bank_statement_log"/>
+        <field name="state">code</field>
+        <field name="code">model.sftp_connection()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall">2025-01-01 10:30:00</field>
+    </record>
+
+</odoo>
+
+
