@@ -9,4 +9,5 @@ class BSIBankAccount(models.Model):
     account_name = fields.Char(string="Account Name")
     group_id = fields.Many2one('bai.bank.groups',string="Group")
     transaction_ids = fields.One2many('bai.bank.account.transactions','account_id',string="Transactions")
+    transaction_date = fields.Date(related='transaction_ids.transaction_date',string="Date")
     

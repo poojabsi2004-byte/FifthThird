@@ -12,6 +12,7 @@
 
                 <field name="account_number"/>
                 <field name="account_name"/>
+                <field name="transaction_date"/>
             </list>
         </field>
     </record>
